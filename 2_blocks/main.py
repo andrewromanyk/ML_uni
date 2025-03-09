@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+from sklearn.model_selection import LeaveOneOut
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -94,3 +95,16 @@ if __name__ == "__main__":
     main()
 
 XY_train = np.array([[a, b] for a, b in zip(X_train, Y_train)])
+
+def full_leave_one_out(model, X):
+    hits = 0
+    loo = LeaveOneOut()
+    for train, test in loo.split(X):
+        inner_x_train = [X[i] for i in train]
+        inner_y_train = [find_real_class(*x) for x in inner_x_train]
+        testing = X[test[0]]
+        model.fit(inner_x_train, inner_y_train)
+        if model.predict([testing]) == find_real_class(*testing):
+            hits += 1
+
+    return hits / len(X)
